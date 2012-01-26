@@ -10,7 +10,7 @@ class IndexController extends controller\Action
 
     public function init()
     {
-        $this->repository = $this->dm->getRepository('\\Application\\Blog\\Post');
+        $this->repository = $this->dm->getRepository('Application\Blog\Post');
     }
 
     public function indexAction()
