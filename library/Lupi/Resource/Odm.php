@@ -53,7 +53,7 @@ class Lupi_Resource_Odm extends Zend_Application_Resource_ResourceAbstract {
     }
     
     /**
-     * The function creates a DSN (Data Source Name) object and creates on its
+     * Creates a DSN (Data Source Name) object and creates on its
      * basis a new Mongo.
      * When nothing is passed as an argument, a DSN on localhost is created
      * 
