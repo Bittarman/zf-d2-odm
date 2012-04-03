@@ -55,23 +55,23 @@ class Lupi_Resource_Odm extends Zend_Application_Resource_ResourceAbstract {
     /**
      * Creates a DSN (Data Source Name) object and creates on its
      * basis a new Mongo.
-     * When nothing is passed as an argument, a DSN on localhost is created
+     * When nothing is passed as an argument, a DSN on localhost (127.0.0.1:27017) is created
      * 
-     * @param type $mongodb_hostname    hostname of the mongodb instance
-     * @param type $mongodb_port        port of the mongodb instance
-     * @param type $mongodb_username    username of the mongodb instance
-     * @param type $mongodb_password    password of the mongodb instance
-     * @param type $mongodb_database    database name of the mongodb instance
-     * @return \Mongo                   returns a Mongo object
+     * @param   type $hostname      hostname of the mongodb instance
+     * @param   type $port          port of the mongodb instance
+     * @param   type $username      username of the mongodb instance
+     * @param   type $password      password of the mongodb instance
+     * @param   type $database      database name of the mongodb instance
+     * @return  new \Mongo($dsn)    returns a Mongo object
      */
-    public function buildDSN($mongodb_hostname='127.0.0.1', $mongodb_port='27017', $mongodb_username='', $mongodb_password = '', $mongodb_database='') {
+    public function buildDSN($hostname='127.0.0.1', $port='27017', $username='', $password = '', $database='') {
         // local host
-        if(empty($mongodb_password) && empty($mongodb_username)) {        
-            $dsn = sprintf('mongodb://%s:%s/%s', $mongodb_hostname, $mongodb_port, $mongodb_database);
+        if(empty($password) && empty($username)) {        
+            $dsn = sprintf('mongodb://%s:%s/%s', $hostname, $port, $database);
         }
         // remote host
         else {
-            $dsn = sprintf('mongodb://%s:%s@%s:27017/%s', $mongodb_username, $mongodb_password, $mongodb_hostname, $mongodb_database);           
+            $dsn = sprintf('mongodb://%s:%s@%s:27017/%s', $username, $password, $hostname, $database);           
         }
         return new \Mongo($dsn);
     }
