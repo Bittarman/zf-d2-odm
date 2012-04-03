@@ -14,10 +14,15 @@ use Doctrine\Common\ClassLoader,
  * @author Ryan Mauger
  * @copyright Ryan Mauger 2012
  */
-class Lupi_Resource_Odm extends Zend_Application_Resource_ResourceAbstract 
-{
-    public function init()
-    {
+class Lupi_Resource_Odm extends Zend_Application_Resource_ResourceAbstract {
+    public function init() {
+        /* 
+         * Get a Mongo object with the corresponding DSN via buildDSN.
+         * The object is passed to the create function of the DocumentManager.
+         * When nothing is passed, a connection to the localhost is build.
+         */
+        $mongo = $this->buildDSN();
+        
     	$options = $this->getOptions();
     	$this->registerAutoloaders($options);
         
@@ -28,17 +33,16 @@ class Lupi_Resource_Odm extends Zend_Application_Resource_ResourceAbstract
             $config->{$method}($value);
         }
         
-        // Annotation reader
+        // Annotation reader & driver configs
         $reader = new AnnotationReader();
-        $reader->setDefaultAnnotationNamespace('Doctrine\ODM\MongoDB\Mapping\\');
+				Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver::registerAnnotationClasses(); 
         $config->setMetadataDriverImpl(new AnnotationDriver($reader, $options['documents']['dir']));
-        
-        $dm = DocumentManager::create(new \Doctrine\MongoDB\Connection(new \Mongo), $config);
+								
+        $dm = DocumentManager::create(new \Doctrine\MongoDB\Connection($mongo), $config);
         return $dm;    
     }
     
-    public function registerAutoloaders($options)
-    {
+    public function registerAutoloaders($options) {
         $autoloader = \Zend_Loader_Autoloader::getInstance();
         
         // Document classes
@@ -46,5 +50,29 @@ class Lupi_Resource_Odm extends Zend_Application_Resource_ResourceAbstract
                                        $options['documents']['dir']);
         $autoloader->pushAutoloader(array($classLoader, 'loadClass'), $options['documents']['namespace']);
         
+    }
+    
+    /**
+     * The function creates a DSN (Data Source Name) object and creates on its
+     * basis a new Mongo.
+     * When nothing is passed as an argument, a DSN on localhost is created
+     * 
+     * @param type $mongodb_hostname    hostname of the mongodb instance
+     * @param type $mongodb_port        port of the mongodb instance
+     * @param type $mongodb_username    username of the mongodb instance
+     * @param type $mongodb_password    password of the mongodb instance
+     * @param type $mongodb_database    database name of the mongodb instance
+     * @return \Mongo                   returns a Mongo object
+     */
+    public function buildDSN($mongodb_hostname='127.0.0.1', $mongodb_port='27017', $mongodb_username='', $mongodb_password = '', $mongodb_database='') {
+        // local host
+        if(empty($mongodb_password) && empty($mongodb_username)) {        
+            $dsn = sprintf('mongodb://%s:%s/%s', $mongodb_hostname, $mongodb_port, $mongodb_database);
+        }
+        // remote host
+        else {
+            $dsn = sprintf('mongodb://%s:%s@%s:27017/%s', $mongodb_username, $mongodb_password, $mongodb_hostname, $mongodb_database);           
+        }
+        return new \Mongo($dsn);
     }
 }
